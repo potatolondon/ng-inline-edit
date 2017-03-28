@@ -6,8 +6,8 @@
       'angularInlineEdit.providers',
       'angularInlineEdit.controllers'
     ])
-    .directive('inlineEdit', ['$compile', 'InlineEditConfig', 'InlineEditConstants',
-      function($compile, InlineEditConfig, InlineEditConstants) {
+    .directive('inlineEdit', ['$compile', '$interpolate', 'InlineEditConfig', 'InlineEditConstants',
+      function($compile, $interpolate, InlineEditConfig, InlineEditConstants) {
         return {
           restrict: 'A',
           controller: 'InlineEditController',
@@ -19,6 +19,9 @@
           link: function(scope, element, attrs) {
             scope.model = scope.$parent.$eval(attrs.inlineEdit);
             scope.isInputTextarea = attrs.hasOwnProperty('inlineEditTextarea');
+            
+            var ngExpStart = $interpolate.startSymbol();
+            var ngExpEnd = $interpolate.endSymbol();
 
             var onBlurBehavior = attrs.hasOwnProperty('inlineEditOnBlur') ?
               attrs.inlineEditOnBlur : InlineEditConfig.onBlur;
@@ -41,7 +44,7 @@
                 'ng-show="editMode" ' +
                 'ng-keyup="onInputKeyup($event)" ' +
                 'ng-model="inputValue" ' +
-                'placeholder="{{placeholder}}" />');
+                'placeholder="' + ngExpStart + 'placeholder' + ngExpEnd + '" />');
 
             var innerContainer = angular.element(
               '<div class="ng-inline-edit__inner-container"></div>');
@@ -52,9 +55,9 @@
                 'ng-class="{\'ng-inline-edit__text--placeholder\': !model}" ' +
                 (attrs.hasOwnProperty('inlineEditOnClick') || InlineEditConfig.editOnClick ?
                   'ng-click="editText()" ' : '') +
-                'ng-if="!editMode">{{(model || placeholder)' +
+                'ng-if="!editMode">' + ngExpStart + '(model || placeholder)' +
                   (attrs.hasOwnProperty('inlineEditFilter') ? ' | ' + attrs.inlineEditFilter : '') +
-                  '}}</span>'));
+                  ngExpEnd + '</span>'));
 
             // edit button
             var inlineEditBtnEdit = attrs.hasOwnProperty('inlineEditBtnEdit') ?
